@@ -21,4 +21,4 @@ class Request:
                 if (i + 1) == self.max_retries:
                     raise
 
-                time.sleep(i**self.backoff_factor)
+                time.sleep(i ** self.backoff_factor)
