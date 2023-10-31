@@ -28,6 +28,7 @@ class Engine:
         logger.debug(f"\n{dfs}")
         self.validate_data(dfs)
         df = self.concat_tables(dfs)
+        logger.debug(f"\n{df}")
         logger.info(f"Parsed content from {self.url}. Extracted {len(df)} rows.")
         return df
 
@@ -64,4 +65,4 @@ class Engine:
         logger.debug("Data validation succeeded.")
 
     def concat_tables(self, dfs: List[pd.DataFrame]) -> pd.DataFrame:
-        return pd.concat(dfs[:2], axis=0).reset_index()
+        return pd.concat(dfs[:2], axis=0).reset_index(drop=True)
