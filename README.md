@@ -1,6 +1,6 @@
-# LCH Data Scraper with Docker
+# LCH Data CDS Settlement Prices
 
-Extract, transform, and load (ETL) LCH (London Clearing House) CDS clearing essentials pricing data into an MSSQL database, leveraging Docker for seamless deployment and scalability.
+Extract, transform, and load (ETL) LCH (London Clearing House) CDS clearing essentials pricing data into an MSSQL database, leveraging Docker for seamless deployment and scalability. CDS settlement prices are converted to spreads using the ISDA model.
 
 
 ## 📌 Features:
