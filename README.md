@@ -18,7 +18,7 @@ Extract, transform, and load (ETL) LCH (London Clearing House) CDS clearing esse
 
 1. Clone the repository:
    ``` bash 
-    git clone git@github.com:alimghmi/lch-client.git
+    git clone git@github.com:pvotio/lch-client.git
     cd lch-client
    ```
 2. Create an `.env` file in the project root and configure the following:
