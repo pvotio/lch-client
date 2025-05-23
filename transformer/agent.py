@@ -45,10 +45,10 @@ class Agent:
     def parse_date(self) -> None:
         try:
             self.dataframe["Valuation Date"] = pd.to_datetime(
-                self.dataframe["Valuation Date"], format="%Y-%m-%d"
+                self.dataframe["Valuation Date"], format="mixed"
             )
             self.dataframe["Maturity"] = pd.to_datetime(
-                self.dataframe["Maturity"], format="%Y-%m-%d"
+                self.dataframe["Maturity"], format="mixed"
             )
         except Exception as e:
             logger.error(f"Failed to parse dates. Error: {e}")
