@@ -7,13 +7,13 @@ from utils import create_inserter_objects
 def main():
     logger.info("Initializing Scraper Engine")
     engine = Engine(
-        url=settings.URL,
         max_retries=settings.REQUEST_MAX_RETRIES,
         backoff_factor=settings.REQUEST_BACKOFF_FACTOR,
     )
     df = engine.fetch()
     logger.info("Transforming Data")
     df_transformed = Agent(df).transform()
+    logger.info(f"\n{df_transformed}")
     logger.info("Preparing Database Inserter")
     inserter = create_inserter_objects(
         server=settings.MSSQL_SERVER,
