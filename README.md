@@ -1,108 +1,121 @@
-# LCH Scraper and Ingestion Pipeline
+# LCH CDS Pricing Data Ingestion Pipeline
 
-This project implements a structured ETL pipeline that scrapes data from the **LCH Group** (London Clearing House) website, transforms it into a standardized format, and loads it into a Microsoft SQL Server database. It is ideal for ingesting daily margin or collateral-related data used in risk and treasury analytics.
+This project implements a structured and automated pipeline for retrieving, transforming, and storing Credit Default Swap (CDS) pricing data published by the LCH Group. It scrapes pricing content from the LCH post-trade website, processes the data into a normalized format, and loads it into a Microsoft SQL Server database for downstream use in risk analysis, reconciliation, and compliance reporting.
 
 ## Overview
 
 ### Purpose
 
-This pipeline automates:
-- Web scraping of structured tabular data from LCH portals.
-- Parsing and cleansing scraped data using Pandas.
-- Inserting the transformed dataset into a specified SQL Server table.
+This pipeline serves the following objectives:
+- Retrieve daily CDS pricing data, including fixed rate curves, tiers, maturities, and contract identifiers.
+- Transform the raw JSON into a clean, structured tabular format.
+- Persist the resulting dataset into a SQL Server environment for enterprise-scale consumption.
 
-The scraper ensures data availability for downstream reporting, margin analysis, and regulatory workflows.
+The processed data supports functions across finance, operations, and regulatory reporting teams.
 
-## Application Flow
+## Source of Data
 
-Execution is orchestrated by `main.py` and follows this sequence:
+Pricing data is publicly provided by LCH via its CDSClear post-trade portal:
 
-1. **Initialize Scraper Engine**:
-   - Instantiates a retry-aware scraper via the `Engine` class (from `scraper` module).
+- Source: https://www.lseg.com/en/post-trade/clearing/lch-services/cdsclear/essentials/pricing-data
+- Data Format: JSON via discovered hyperlinks embedded in the pricing portal
+- Coverage: Credit Index and Single Name CDS curves, series-based valuation
 
-2. **Fetch Data**:
-   - Makes HTTP requests to LCH pages, extracts HTML tables using `lxml`/`pandas`.
+Data includes fields such as:
+- ISIN and short name
+- Maturity and tier
+- CDS definition/version
+- Series identifier
+- Daily fixed rate values
 
-3. **Transform**:
-   - The `Agent` class from `transformer` handles data normalization and formatting.
+## Pipeline Flow
 
-4. **Database Insert**:
-   - Uses `create_inserter_objects()` to prepare a database interface.
-   - Data is inserted into the table specified by the `OUTPUT_TABLE` variable.
+The ingestion process is organized into the following stages:
+
+1. **Discovery**:
+   - Web scraping logic extracts URLs pointing to relevant JSON pricing files.
+
+2. **Data Retrieval**:
+   - The scraper downloads each JSON file and converts it to a DataFrame.
+
+3. **Data Transformation**:
+   - Field normalization, date parsing, and column mapping are handled by the transformation layer.
+
+4. **Database Insertion**:
+   - The transformed dataset is inserted into SQL Server using batch insertion with retry support.
 
 ## Project Structure
 
 ```
 lch-client-main/
-├── main.py                     # Pipeline entrypoint
-├── config/                     # Logger and settings
-│   ├── settings.py             # Loads .env variables
-├── database/                   # SQL Server connectivity and inserters
-├── scraper/                    # Custom HTML parsing logic
-├── transformer/                # Transformation layer
-├── utils/                      # Inserter factory and helpers
-├── .env.sample                 # Environment variable config template
-├── Dockerfile                  # Containerization support
-├── requirements.txt            # Python dependencies
+├── main.py                   # Entry point
+├── config/                   # Environment and logger setup
+│   ├── settings.py
+│   └── logger.py
+├── scraper/                  # LCH pricing discovery and JSON loader
+│   └── engine.py
+├── transformer/              # Pricing transformation routines
+│   └── agent.py
+├── database/                 # MSSQL helper functions
+├── utils/                    # Retry logic and inserter abstraction
+├── .env.sample               # Example environment variables
+├── Dockerfile                # Container setup
+├── requirements.txt          # Python dependencies
 ```
 
 ## Environment Variables
 
-Use the `.env.sample` file to create a `.env`. Required settings include:
+The application is configured via a `.env` file modeled after `.env.sample`. The following variables are required:
 
 | Variable | Description |
 |----------|-------------|
-| `LOG_LEVEL` | Logging level (`INFO`, `DEBUG`) |
-| `OUTPUT_TABLE` | Destination table in SQL Server |
-| `INSERTER_MAX_RETRIES` | Number of retries for failed DB inserts |
-| `REQUEST_MAX_RETRIES` | Retry count for web scraping requests |
-| `REQUEST_BACKOFF_FACTOR` | Exponential backoff factor between retries |
-| `MSSQL_SERVER` | SQL Server hostname or IP |
-| `MSSQL_DATABASE` | Target database name |
-| `MSSQL_USERNAME` / `MSSQL_PASSWORD` | Authentication credentials |
+| `LOG_LEVEL` | Logging level (`INFO`, `DEBUG`, etc.) |
+| `OUTPUT_TABLE` | SQL Server table for data storage |
+| `MSSQL_SERVER`, `MSSQL_DATABASE`, `MSSQL_USERNAME`, `MSSQL_PASSWORD` | Database connection configuration |
+| `INSERTER_MAX_RETRIES` | Maximum retry attempts for failed inserts |
+| `REQUEST_MAX_RETRIES`, `REQUEST_BACKOFF_FACTOR` | Control exponential backoff behavior during data fetch |
 
-## Docker Support
+## Docker Deployment
 
-You can run this application as a container for consistent environments.
+To run the pipeline in a containerized environment:
 
 ### Build
 ```bash
 docker build -t lch-client .
 ```
 
-### Run
+### Execute
 ```bash
 docker run --env-file .env lch-client
 ```
 
-## Requirements
+## Local Installation
 
-Install dependencies with pip:
+Install dependencies via:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-Notable packages used:
-- `requests`: HTTP client for scraping
-- `pandas`: Table parsing and data transformation
-- `lxml`: HTML parsing
-- `SQLAlchemy`, `pyodbc`: SQL Server access
-- `python-decouple`: Secure environment variable loading
+Key libraries used:
+- `requests`, `beautifulsoup4`, `lxml` for scraping and parsing
+- `pandas` for data manipulation
+- `SQLAlchemy`, `pyodbc` for SQL Server integration
+- `python-decouple` for configuration management
 
-## Running the App
+## Execution
 
-Once `.env` is configured, launch the application using:
+Once the environment is set:
 
 ```bash
 python main.py
 ```
 
-You’ll see logs indicating:
-- Fetch progress
-- Data transformation results
-- Insert status
+This will:
+- Discover CDS JSON files
+- Extract, clean, and transform pricing data
+- Insert the result into the specified database table
 
 ## License
 
-This project is provided under the MIT License. Always verify usage rights when scraping external sources.
+This project is distributed under the MIT License. Users are responsible for ensuring compliance with LCH Group’s published data usage terms.
