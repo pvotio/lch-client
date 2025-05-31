@@ -21,12 +21,20 @@ Pricing data is publicly provided by LCH via its CDSClear post-trade portal:
 - Data Format: JSON via discovered hyperlinks embedded in the pricing portal
 - Coverage: Credit Index and Single Name CDS curves, series-based valuation
 
-Data includes fields such as:
-- ISIN and short name
-- Maturity and tier
-- CDS definition/version
-- Series identifier
-- Daily fixed rate values
+Fields included in the transformed dataset:
+- `valuation_date`
+- `instrument`
+- `instrument_name`
+- `series`
+- `version`
+- `contractual_definitions`
+- `fixed_rate`
+- `maturity`
+- `index_factor`
+- `price`
+- `ticker`
+- `tier`
+- `doc_clause`
 
 ## Pipeline Flow
 
