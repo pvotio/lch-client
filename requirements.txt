@@ -1,6 +1,9 @@
-pandas==2.0.3
-python-decouple==3.8
-requests==2.32.2
-lxml==4.9.3
-SQLAlchemy==2.0.22
-pyodbc==5.0.1
+azure-identity
+pandas
+python-decouple
+requests
+lxml
+SQLAlchemy
+pyodbc
+html5lib
+fast-to-sql

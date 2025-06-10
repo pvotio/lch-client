@@ -1,7 +1,7 @@
 from config import logger, settings
 from scraper import Engine
 from transformer import Agent
-from utils import create_inserter_objects
+from utils.db_helper import init_db_instance
 
 
 def main():
@@ -15,14 +15,10 @@ def main():
     df_transformed = Agent(df).transform()
     logger.info(f"\n{df_transformed}")
     logger.info("Preparing Database Inserter")
-    inserter = create_inserter_objects(
-        server=settings.MSSQL_SERVER,
-        database=settings.MSSQL_DATABASE,
-        username=settings.MSSQL_USERNAME,
-        password=settings.MSSQL_PASSWORD,
-    )
+    inserter = init_db_instance()
+    df_transformed.to_csv(f"{settings.OUTPUT_TABLE}.csv")
     logger.info(f"Inserting Data into {settings.OUTPUT_TABLE}")
-    inserter.insert(df_transformed, settings.OUTPUT_TABLE)
+    inserter.insert_table(df_transformed, settings.OUTPUT_TABLE)
     logger.info("Application completed successfully")
     return
 

@@ -1,2 +1,1 @@
-from .connection.mssql import MSSQLDatabaseConnection
-from .inserter.pandas import PandasSQLDataInserter
+from database.mssql import MSSQLDatabase
